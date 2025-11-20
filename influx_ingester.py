@@ -19,7 +19,7 @@ client = influxdb_client.InfluxDBClient(
 write_api = client.write_api(write_options=SYNCHRONOUS)
 query_api = client.query_api()
 
-def write_vitals(user_id: int, heart_rate: float, spo2: float):
+def write_vitals(user_id: int, heart_rate: float, spo2: float, temperature: float = None):
     """
     Writes a new vital sign data point to InfluxDB tagged by user_id.
     """
@@ -29,6 +29,9 @@ def write_vitals(user_id: int, heart_rate: float, spo2: float):
         .field("heart_rate", heart_rate)
         .field("spo2", spo2)
     )
+    if temperature is not None:
+        point.field("temperature", temperature)
+    
     write_api.write(bucket=INFLUX_BUCKET, org=INFLUX_ORG, record=point)
 
 def query_vitals(user_id: int, time_range: str = "-1h"):

@@ -42,6 +42,7 @@ class HealthEvent(HealthEventBase):
 class Vitals(BaseModel):
     heart_rate: float
     spo2: float
+    temperature: Optional[float] = None
 
 class Token(BaseModel):
     access_token: str
@@ -56,3 +57,42 @@ class SentinelQuery(BaseModel):
 class VitalsLog(BaseModel):
     heart_rate: float
     spo2: float
+    temperature: Optional[float] = None
+
+
+# Emergency & Hospital Service Schemas
+
+class UserLocation(BaseModel):
+    """User location for emergency services"""
+    latitude: float
+    longitude: float
+
+
+class EmergencyContactRequest(BaseModel):
+    """Request to initiate emergency contact"""
+    severity: str  # "critical", "high", "moderate", "low"
+    medical_summary: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+
+
+class HospitalInfo(BaseModel):
+    """Information about a hospital"""
+    name: str
+    latitude: float
+    longitude: float
+    distance_km: float
+    address: str = "N/A"
+    phone: str = "N/A"
+    emergency: str = "unknown"
+
+
+class EmergencyContactCard(BaseModel):
+    """Emergency contact information card"""
+    user_id: int
+    user_email: str
+    emergency_number: str
+    nearest_hospital: Optional[HospitalInfo] = None
+    all_nearby_hospitals: Optional[list] = None
+    user_location: Optional[Dict[str, float]] = None
+    created_at: datetime
