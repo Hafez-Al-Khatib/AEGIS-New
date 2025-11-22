@@ -33,3 +33,46 @@ class HealthEvent(Base):
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
 
     owner = relationship("User", back_populates="health_events")
+    class Alert(Base):
+    __tablename__ = "alerts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    message = Column(String)
+    severity = Column(String)  # LOW, MEDIUM, HIGH
+    timestamp = Column(DateTime, default=datetime.utcnow)
+from alert_engine import evaluate_sentinel_output
+from observability import log_agent_event
+
+# After Sentinel analysis
+alert_needed, reason = evaluate_sentinel_output(analysis)
+
+if alert_needed:
+    log_agent_event(
+        agent_name="Sentinel",
+        user_id=current_user.id,
+        event="ALERT_TRIGGERED",
+        extra={"reason": reason}
+    )
+
+    db_alert = models.Alert(
+        user_id=current_user.id,
+        message=reason,
+        severity="HIGH"
+    )
+    db.add(db_alert)
+    db.commit()
+    db.refresh(db_alert)
+
+    return {
+        "status": "ALERT",
+        "message": reason,
+        "vision_output": extracted_data,
+        "reasoning_output": analysis
+    }
+
+return {
+    "status": "success",
+    "vision_output": extracted_data,
+    "reasoning_output": analysis
+}
