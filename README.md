@@ -14,22 +14,22 @@
 
 ---
 
-## 🎯 Overview
+## Overview
 
-AEGIS is a **multi-agent AI health monitoring system** that goes beyond simple chatbots to provide:
+AEGIS is an **Agentic AI health monitoring system** that goes beyond simple chatbots to provide:
 
-- 🚨 **Autonomous Emergency Response** - Real phone calls via Twilio when vitals are critical
-- ⌚ **Real-Time Vitals Monitoring** - Samsung Galaxy Watch 4 integration
-- 🤖 **Multi-Agent Architecture** - Sentinel, Chronicler, and Strategist agents collaborate
-- 🎙️ **AI Voice Calls** - Book appointments through actual phone calls
-- 🧬 **Lifestyle Optimization** - Personalized health plans with clinical evidence
-- 🔐 **Privacy-First** - Local LLM option (Qwen 2.5 7B) keeps data on-device
+- **Autonomous Emergency Response** - Real phone calls via Twilio when vitals are critical
+- **Real-Time Vitals Monitoring** - Samsung Galaxy Watch 4 integration
+- **Multi-Agent Architecture** - Sentinel, Chronicler, and Strategist agents collaborate
+- **AI Voice Calls** - Book appointments through actual phone calls
+- **Lifestyle Optimization** - Personalized health plans with clinical evidence
+- **Privacy-First** - Local or privately hosted LLM option running Qwen 2.5 7B keeps data private.
 
 > **This is not "just retrieval and booking"** - see [FEATURES_SHOWCASE.md](docs/FEATURES_SHOWCASE.md) for a detailed breakdown of advanced capabilities.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -67,9 +67,9 @@ AEGIS is a **multi-agent AI health monitoring system** that goes beyond simple c
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### Option 1: Docker (Recommended for Assessment)
+### Option 1: Docker
 
 ```bash
 # Clone the repository
@@ -107,7 +107,7 @@ npm run dev
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Required Environment Variables
 
@@ -134,7 +134,7 @@ GOOGLE_API_KEY=your_key_here
 
 ---
 
-## 📱 Galaxy Watch Integration
+## Galaxy Watch Integration
 
 ### Option 1: Health Sync App (Recommended)
 
@@ -162,7 +162,7 @@ See [GALAXY_WATCH_INTEGRATION.md](docs/GALAXY_WATCH_INTEGRATION.md) for detailed
 
 ---
 
-## 🧪 Testing the System
+## Testing the System
 
 ### Demo Scenarios
 
@@ -199,7 +199,7 @@ curl -X POST http://localhost:8000/vitals/me \
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 | Document | Description |
 |----------|-------------|
@@ -210,7 +210,7 @@ curl -X POST http://localhost:8000/vitals/me \
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
 - **FastAPI** - High-performance API framework
@@ -237,7 +237,7 @@ curl -X POST http://localhost:8000/vitals/me \
 
 ---
 
-## 🔐 Privacy & Security
+## Privacy & Security
 
 - **Local LLM Option**: Qwen 2.5 7B runs entirely on-device
 - **No Cloud Dependency**: System works offline (except for external APIs)
@@ -247,22 +247,8 @@ curl -X POST http://localhost:8000/vitals/me \
 
 ---
 
-## 📊 Key Differentiators
 
-| Feature | Basic Health Chatbot | AEGIS |
-|---------|---------------------|-------|
-| Answer questions | ✅ | ✅ |
-| Book appointments | Text only | **+ AI Voice Calls** |
-| Real-time vitals | ❌ | ✅ Galaxy Watch |
-| Emergency calls | ❌ | ✅ **Autonomous Twilio** |
-| Multi-agent system | ❌ | ✅ LangGraph |
-| Local LLM | ❌ | ✅ Qwen 2.5 7B |
-| ECG Analysis | ❌ | ✅ NeuroKit2 |
-| Gamification | ❌ | ✅ Habitica |
-
----
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -272,13 +258,13 @@ curl -X POST http://localhost:8000/vitals/me \
 
 ---
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [LangChain](https://github.com/langchain-ai/langchain) & [LangGraph](https://github.com/langchain-ai/langgraph) for the agent framework
 - [Qwen](https://github.com/QwenLM/Qwen) for the local LLM
