@@ -3,7 +3,7 @@
 ## Agentic Environment for Guardian Intelligence in Healthcare Systems
 
 <p align="center">
-  <img src="docs/images/aegis-logo.png" alt="AEGIS Logo" width="200"/>
+  <img src="docs/images/aegis-logo.jpg" alt="AEGIS Logo" width="200"/>
 </p>
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
