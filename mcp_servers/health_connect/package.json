@@ -1,0 +1,13 @@
+{
+  "name": "aegis-health-connect-mcp",
+  "version": "1.0.0",
+  "description": "MCP Server for Samsung Galaxy Watch health data integration",
+  "main": "server.py",
+  "scripts": {
+    "start": "python server.py",
+    "websocket": "python websocket_server.py"
+  },
+  "keywords": ["mcp", "health", "samsung", "galaxy-watch", "vitals"],
+  "author": "AEGIS Health",
+  "license": "MIT"
+}

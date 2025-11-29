@@ -1,0 +1,60 @@
+# AEGIS Docker Ignore
+# Files and directories that should not be included in Docker builds
+
+# Git
+.git
+.gitignore
+
+# Environment & Secrets
+.env
+.env.*
+*.key
+credentials.json
+token.json
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+aegisenv/
+.venv/
+*.egg-info/
+
+# LLM Models (too large - mount separately)
+*.gguf
+*.bin
+*.safetensors
+models/
+agents/models/
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Databases (use volumes instead)
+*.db
+*.sqlite
+aegis.db
+
+# Logs
+*.log
+logs/
+
+# Documentation (not needed in container)
+docs/
+*.md
+!README.md
+
+# Tests
+tests/
+*_test.py
+test_*.py
+
+# Build artifacts
+dist/
+build/

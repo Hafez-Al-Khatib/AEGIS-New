@@ -1,0 +1,179 @@
+version: '3.8'
+
+# ============================================================================
+# AEGIS - Agentic Environment for Guardian Intelligence in Healthcare Systems
+# Docker Compose Configuration
+# ============================================================================
+#
+# Quick Start:
+#   1. Copy .env.example to .env and configure
+#   2. Run: docker-compose up --build
+#   3. Access frontend at http://localhost:5173
+#   4. Access API docs at http://localhost:8000/docs
+#
+# Services:
+#   - PostgreSQL: Primary database
+#   - InfluxDB: Time-series vitals storage
+#   - Backend: FastAPI + LangGraph agents
+#   - Frontend: React dashboard
+# ============================================================================
+
+services:
+  # --------------------------------------------------------------------------
+  # PostgreSQL - Primary Database
+  # --------------------------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: aegis_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aegis}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aegis_secure_password}
+      POSTGRES_DB: ${POSTGRES_DB:-aegis}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aegis}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # --------------------------------------------------------------------------
+  # InfluxDB - Time-Series Database for Vitals
+  # --------------------------------------------------------------------------
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: aegis_influxdb
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUX_USER:-aegis}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUX_PASSWORD:-aegis_influx_password}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUX_ORG:-aegis_org}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUX_BUCKET:-vitals}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUX_TOKEN:-aegis-influx-token-change-me}
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # --------------------------------------------------------------------------
+  # Backend - FastAPI + LangGraph Multi-Agent System
+  # --------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend
+    container_name: aegis_backend
+    ports:
+      - "8000:8000"
+    environment:
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-aegis}:${POSTGRES_PASSWORD:-aegis_secure_password}@postgres:5432/${POSTGRES_DB:-aegis}
+      
+      # InfluxDB
+      INFLUX_URL: http://influxdb:8086
+      INFLUX_TOKEN: ${INFLUX_TOKEN:-aegis-influx-token-change-me}
+      INFLUX_ORG: ${INFLUX_ORG:-aegis_org}
+      INFLUX_BUCKET: ${INFLUX_BUCKET:-vitals}
+      
+      # Security
+      SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
+      
+      # LLM Configuration (Qwen primary, Gemini beta)
+      LLM_PROVIDER: ${LLM_PROVIDER:-qwen}
+      USE_GEMINI_BETA: ${USE_GEMINI_BETA:-false}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      QWEN_MODEL_PATH: /app/models/qwen2.5-7b-instruct.gguf
+      
+      # Twilio (Emergency Calls & WhatsApp)
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}
+      TWILIO_WHATSAPP_NUMBER: ${TWILIO_WHATSAPP_NUMBER:-}
+      AEGIS_BASE_URL: ${AEGIS_BASE_URL:-http://localhost:8000}
+      
+      # Health Connect API
+      HEALTH_CONNECT_API_KEY: ${HEALTH_CONNECT_API_KEY:-aegis-health-key}
+      HEALTH_CONNECT_USER_ID: ${HEALTH_CONNECT_USER_ID:-2}
+      
+      # Google Services (Calendar, Maps)
+      GOOGLE_CALENDAR_CREDENTIALS: ${GOOGLE_CALENDAR_CREDENTIALS:-}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+      
+      # Habitica (Gamification)
+      HABITICA_USER_ID: ${HABITICA_USER_ID:-}
+      HABITICA_API_TOKEN: ${HABITICA_API_TOKEN:-}
+    volumes:
+      - ./models:/app/models:ro  # Mount Qwen model (read-only)
+      - ./data:/app/data         # Data directory
+      - ./audio_cache:/app/audio_cache  # TTS audio cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/observability/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # --------------------------------------------------------------------------
+  # Frontend - React Dashboard
+  # --------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend
+    container_name: aegis_frontend
+    ports:
+      - "5173:80"
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # --------------------------------------------------------------------------
+  # Vitals Simulator (Development/Testing Only)
+  # --------------------------------------------------------------------------
+  vitals_simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend
+    container_name: aegis_vitals_simulator
+    command: ["python", "scripts/simulate_vitals.py", "--api-mode", "--api-url", "http://backend:8000", "--interval", "30"]
+    environment:
+      API_URL: http://backend:8000
+      API_KEY: ${HEALTH_CONNECT_API_KEY:-aegis-health-key}
+    depends_on:
+      - backend
+    profiles:
+      - testing  # Only runs with: docker-compose --profile testing up
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  influxdb_data:
+    driver: local
+  influxdb_config:
+    driver: local
+
+networks:
+  default:
+    name: aegis_network
